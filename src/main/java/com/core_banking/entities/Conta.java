@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -31,4 +32,10 @@ public class Conta {
 
     @Column(name = "LIMITE")
     private Double limite;
+
+    @OneToMany(mappedBy = "contaOrigem")
+    private List<Transacao> transacoesEnviadas;
+
+    @OneToMany(mappedBy = "contaDestino")
+    private List<Transacao> transacoesRecebidas;
 }

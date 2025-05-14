@@ -4,6 +4,7 @@ import com.core_banking.DTO.ResponseDTO;
 import com.core_banking.entities.Conta;
 import com.core_banking.exceptions.ValidarException;
 import com.core_banking.repositories.ContaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class ContaService {
         }
     }
 
-    public void deposito(Long contaId, BigDecimal valor) {
+    public void depositar(Long contaId, BigDecimal valor) {
         if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0 ) {
             throw new IllegalArgumentException("Valor do depósito deve ser positivo.");
         }
@@ -48,6 +49,36 @@ public class ContaService {
         BigDecimal novoSaldo = conta.getSaldo().subtract(valor);
         conta.setSaldo(novoSaldo);
         contaRepository.save(conta);
+    }
+
+    public BigDecimal consultarSaldo(Long contaId) {
+        Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new EntityNotFoundException("Conta inexistente" + contaId));
+        return conta.getSaldo();
+    }
+
+    public BigDecimal extrato(Long contaId) {
+        Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new EntityNotFoundException("Conta inexistente"));
+        return conta.getSaldo();
+    }
+
+    public BigDecimal transferirValor(Long contaOrigemId, Long contaDestinoId, BigDecimal valor) {
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0 ) {
+            throw new IllegalArgumentException("Valor da transferência deve ser positivo.");
+        }
+        Conta contaOrigem = contaRepository.findById(contaOrigemId).orElseThrow(() -> new EntityNotFoundException("Conta de origem inexistente" + contaOrigemId));
+        Conta contaDestino = contaRepository.findById(contaDestinoId).orElseThrow(() -> new EntityNotFoundException("Conta de origem inexistente" + contaDestinoId));
+
+        if (valor.compareTo(contaOrigem.getSaldo()) < 0) {
+            throw new IllegalArgumentException("Saldo insuficiente na conta de origem.");
+        }
+
+        contaOrigem.setSaldo(valor.subtract(contaOrigem.getSaldo()));
+        contaDestino.setSaldo(valor.add(contaOrigem.getSaldo()));
+
+        contaRepository.save(contaOrigem);
+        contaRepository.save(contaDestino);
+
+        return valor;
     }
 
     private void validarConta(Conta conta) {
