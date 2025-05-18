@@ -1,6 +1,6 @@
 package com.core_banking.enums;
 
-public enum TipoTransacao {
+public enum EnumTipoTransacao {
     DEPOSITO,
     SAQUE,
     TRANSFERENCIA

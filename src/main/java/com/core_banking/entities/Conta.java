@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Entity(name = "CONTA")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "conta")
 public class Conta {
 
     @Id
@@ -31,11 +31,9 @@ public class Conta {
     private BigDecimal saldo;
 
     @Column(name = "LIMITE")
-    private Double limite;
+    private BigDecimal limite;
 
-    @OneToMany(mappedBy = "contaOrigem")
-    private List<Transacao> transacoesEnviadas;
+    @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transacao> transacoes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "contaDestino")
-    private List<Transacao> transacoesRecebidas;
 }

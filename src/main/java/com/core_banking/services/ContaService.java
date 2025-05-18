@@ -2,6 +2,9 @@ package com.core_banking.services;
 
 import com.core_banking.DTO.ResponseDTO;
 import com.core_banking.entities.Conta;
+import com.core_banking.entities.Transacao;
+import com.core_banking.enums.EnumTipoTransacao;
+import com.core_banking.enums.EnumTipoTransferencia;
 import com.core_banking.exceptions.ValidarException;
 import com.core_banking.repositories.ContaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -75,10 +78,27 @@ public class ContaService {
         contaOrigem.setSaldo(valor.subtract(contaOrigem.getSaldo()));
         contaDestino.setSaldo(valor.add(contaOrigem.getSaldo()));
 
+        Transacao transacaoSaida = buildTransacao(valor, contaOrigem, EnumTipoTransferencia.SAIDA, EnumTipoTransacao.TRANSFERENCIA);
+
+        contaOrigem.getTransacoes().add(transacaoSaida);
+
+        Transacao transacaoEntrada = buildTransacao(valor, contaDestino, EnumTipoTransferencia.ENTRADA, EnumTipoTransacao.TRANSFERENCIA);
+
+        contaDestino.getTransacoes().add(transacaoEntrada);
+
         contaRepository.save(contaOrigem);
         contaRepository.save(contaDestino);
 
         return valor;
+    }
+
+    private Transacao buildTransacao(BigDecimal valor, Conta conta, EnumTipoTransferencia tipoTransferencia, EnumTipoTransacao tipoTransacao) {
+        return Transacao.builder()
+                .conta(conta)
+                .tipoTransferencia(tipoTransferencia)
+                .valor(valor)
+                .tipoTransacao(tipoTransacao)
+                .build();
     }
 
     private void validarConta(Conta conta) {
@@ -94,7 +114,7 @@ public class ContaService {
         if (conta.getTipoConta() == null) {
             throw new RuntimeException("Tipo da conta não pode ser nulo!");
         }
-        if (conta.getLimite() == null || conta.getLimite() < 0) {
+        if (conta.getLimite() == null || conta.getLimite().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Limite da conta não pode ser nulo ou negativo!");
         }
     }
