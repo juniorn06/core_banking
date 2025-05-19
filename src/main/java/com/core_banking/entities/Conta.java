@@ -36,4 +36,7 @@ public class Conta {
     @OneToMany(mappedBy = "conta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transacao> transacoes = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "CLIENTE_ID")
+    private Cliente cliente;
 }

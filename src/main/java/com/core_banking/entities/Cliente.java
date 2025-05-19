@@ -43,4 +43,7 @@ public class Cliente {
 
     @Column(name = "CEP")
     private String cep;
+
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Conta> contas;
 }

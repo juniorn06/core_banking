@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class ContaService {
@@ -59,9 +60,8 @@ public class ContaService {
         return conta.getSaldo();
     }
 
-    public BigDecimal extrato(Long contaId) {
-        Conta conta = contaRepository.findById(contaId).orElseThrow(() -> new EntityNotFoundException("Conta inexistente"));
-        return conta.getSaldo();
+    public Conta extrato(Long contaId) {
+        return contaRepository.findById(contaId).orElseThrow(() -> new EntityNotFoundException("Conta inexistente"));
     }
 
     public BigDecimal transferirValor(Long contaOrigemId, Long contaDestinoId, BigDecimal valor) {
