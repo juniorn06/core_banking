@@ -8,9 +8,11 @@ import com.core_banking.enums.EnumTipoTransferencia;
 import com.core_banking.exceptions.ValidarException;
 import com.core_banking.repositories.ContaRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 @Service
 public class ContaService {
 
+    @Autowired
     private ContaRepository contaRepository;
 
     public ResponseEntity<ResponseDTO> cadastrarConta(Conta novaConta) {
@@ -33,6 +36,24 @@ public class ContaService {
             String MsgDTO = "Erro inesperado. Entre em contato com o Administrador.";
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ResponseDTO(null, MsgDTO));
         }
+    }
+
+    public List<Conta> obterContas(){
+        List<Conta> listarContas = contaRepository.findAll();
+        return listarContas;
+    }
+
+    public Conta obterContaPorId(Long id) {
+        return contaRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Conta não encontrada"));
+    }
+
+    public Conta alterarConta(Conta contaAlterada, Long id) {
+        return contaRepository.findById(id).map(conta -> {
+            conta.setNumeroConta(contaAlterada.getNumeroConta());
+            conta.setTipoConta(contaAlterada.getTipoConta());
+            conta.setLimite(contaAlterada.getLimite());
+            return contaRepository.save(conta);
+        }).orElseThrow(() -> new RuntimeException("Conta não encontrada!"));
     }
 
     public void depositar(Long contaId, BigDecimal valor) {
@@ -103,19 +124,16 @@ public class ContaService {
 
     private void validarConta(Conta conta) {
         if (conta.getNumeroConta() == null) {
-            throw new RuntimeException("Número da conta não pode ser nulo!");
-        }
-        if (conta.getNumeroConta() < 0) {
-            throw new RuntimeException("Número da conta não pode ser negativo!");
-        }
-        if (conta.getTitularConta() == null) {
-            throw new RuntimeException("Titular da conta não pode ser nulo!");
+            throw new RuntimeException("O número da conta não pode ser nulo!");
         }
         if (conta.getTipoConta() == null) {
-            throw new RuntimeException("Tipo da conta não pode ser nulo!");
+            throw new RuntimeException("Campo tipo da conta não pode ser nulo!");
         }
         if (conta.getLimite() == null || conta.getLimite().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException("Limite da conta não pode ser nulo ou negativo!");
+        }
+        if (conta.getCliente() == null) {
+            throw new RuntimeException("Campo cliente não pode ser nulo!");
         }
     }
 }

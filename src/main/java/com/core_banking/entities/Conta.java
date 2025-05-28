@@ -1,5 +1,6 @@
 package com.core_banking.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,11 +19,11 @@ import java.util.List;
 public class Conta {
 
     @Id
-    @Column(name = "NUMERO_CONTA")
-    private Integer numeroConta;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "TITULAR_CONTA")
-    private String titularConta;
+    @Column(name = "NUMERO_CONTA")
+    private String numeroConta;
 
     @Column(name = "TIPO_CONTA")
     private String tipoConta;
@@ -38,5 +39,6 @@ public class Conta {
 
     @ManyToOne
     @JoinColumn(name = "CLIENTE_ID")
+    @JsonIgnore
     private Cliente cliente;
 }

@@ -2,6 +2,7 @@ package com.core_banking.entities;
 
 import com.core_banking.enums.EnumTipoTransacao;
 import com.core_banking.enums.EnumTipoTransferencia;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -5,20 +5,16 @@ import com.core_banking.repositories.ContaRepository;
 import com.core_banking.services.ContaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/conta")
 public class ContaController {
 
-    @Autowired
-    private ContaRepository contaRepository;
     @Autowired
     private ContaService contaService;
 
@@ -27,5 +23,20 @@ public class ContaController {
         contaService.cadastrarConta(conta);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(conta.getNumeroConta()).toUri();
         return ResponseEntity.created(uri).build();
+    }
+
+    @GetMapping(path = "/obterContas")
+    public ResponseEntity<List> obterContas() {
+        return ResponseEntity.ok().body(contaService.obterContas());
+    }
+
+    @GetMapping(path = "/obterContaPorId/{id}")
+    public ResponseEntity<Conta> obterContaPorId(@PathVariable Long id) {
+        return ResponseEntity.ok().body(contaService.obterContaPorId(id));
+    }
+
+    @PutMapping(path = "/alterarConta/{id}")
+    public ResponseEntity<Conta> alterarConta(@PathVariable Long id, @RequestBody Conta conta) {
+        return ResponseEntity.ok().body(contaService.alterarConta(conta, id));
     }
 }
